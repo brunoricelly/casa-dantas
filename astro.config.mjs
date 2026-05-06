@@ -2,10 +2,14 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import node from '@astrojs/node';
 
 export default defineConfig({
   site: 'https://casadantas.chatwoot.space',
-  output: 'static',
+  output: 'server',
+  adapter: node({
+    mode: 'standalone',
+  }),
   vite: {
     plugins: [tailwindcss()],
   },
@@ -15,5 +19,9 @@ export default defineConfig({
   ],
   build: {
     assets: '_assets',
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 4321,
   },
 });
