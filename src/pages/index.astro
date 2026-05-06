@@ -4,9 +4,22 @@ import Hero from '@/components/Hero.astro';
 import CategoryGrid from '@/components/CategoryGrid.astro';
 import Newsletter from '@/components/Newsletter.astro';
 import ProductCatalog from '@/components/ProductCatalog';
-import { products } from '@/data/products';
+import { db } from '../db';
+import { products as schemaProducts } from '../db/schema';
+import { desc } from 'drizzle-orm';
 import { site } from '@/data/site';
-const featured = products.slice(0, 6);
+
+const rawProducts = await db.select().from(schemaProducts).orderBy(desc(schemaProducts.created_at)).limit(6);
+
+const featured = rawProducts.map((p) => ({
+  id: p.id.toString(),
+  name: p.nome,
+  category: 'Calçados', 
+  image: p.imagem_url || '/placeholder.jpg',
+  brand: 'Casa Dantas',
+  sku: p.codigo,
+  specs: p.especificacoes
+}));
 ---
 <BaseLayout title="Casa Dantas Quixadá | Calçados, bolsas e acessórios" description="Casa Dantas: loja tradicional de calçados, bolsas, malas e acessórios em Quixadá desde 1973.">
   <Hero />
@@ -15,11 +28,14 @@ const featured = products.slice(0, 6);
     <div class="container-page">
       <div class="max-w-3xl">
         <span class="eyebrow">Vitrine online</span>
-        <h2 class="section-title mt-5">Produtos selecionados para começar sua compra.</h2>
-        <p class="mt-4 text-lg leading-8 text-slate-600">Explore marcas conhecidas e finalize seu pedido com atendimento humano pelo WhatsApp.</p>
+        <h2 class="section-title mt-5">Últimos lançamentos e novidades da loja.</h2>
+        <p class="mt-4 text-lg leading-8 text-slate-600">Explore nosso catálogo e faça sua lista para consultar com nossas vendedoras pelo WhatsApp.</p>
       </div>
       <div class="mt-10">
         <ProductCatalog client:load products={featured} />
+      </div>
+      <div class="mt-8 text-center">
+        <a href="/catalogo" class="btn-primary">Ver catálogo completo</a>
       </div>
     </div>
   </section>

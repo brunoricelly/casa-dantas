@@ -1,0 +1,20 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db } from '../../db';
+import { products } from '../../db/schema';
+import { sql } from 'drizzle-orm';
+
+const result = await db.select({ count: sql<number>`count(*)` }).from(products);
+const totalProdutos = result[0]?.count || 0;
+---
+
+<AdminLayout>
+  <span slot="header">Dashboard</span>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+      <h3 class="text-slate-500 text-sm font-medium">Total de Produtos</h3>
+      <p class="text-3xl font-bold text-slate-800 mt-2">{totalProdutos}</p>
+    </div>
+  </div>
+</AdminLayout>
