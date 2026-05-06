@@ -12,6 +12,12 @@ export default defineConfig({
   }),
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      allowedHosts: ['casadantas.chatwoot.space', 'localhost', '127.0.0.1'],
+    },
+    preview: {
+      allowedHosts: ['casadantas.chatwoot.space', 'localhost', '127.0.0.1'],
+    },
   },
   integrations: [
     react(),
