@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://casadantas.chatwoot.space/sitemap-index.xml

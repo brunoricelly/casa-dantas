@@ -1,0 +1,36 @@
+---
+import { site } from '@/data/site';
+---
+<section class="relative overflow-hidden bg-brand-radial">
+  <div class="container-page grid min-h-[720px] items-center gap-12 py-20 lg:grid-cols-[1.05fr_.95fr]">
+    <div>
+      <span class="eyebrow">Desde 1973 · Quixadá-CE</span>
+      <h1 class="mt-6 max-w-4xl text-5xl font-black leading-[0.95] tracking-tight text-dantas-navy sm:text-6xl lg:text-7xl">Calçados, bolsas e acessórios para toda a família.</h1>
+      <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-700">A tradição da Casa Dantas agora em uma experiência digital moderna: novidades, tendências, catálogo inteligente e atendimento rápido pelo WhatsApp.</p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href="/catalogo" class="btn-primary">Explorar catálogo</a>
+        <a href={site.whatsappLink} target="_blank" rel="noreferrer" class="btn-secondary">Comprar pelo WhatsApp</a>
+      </div>
+      <div class="mt-10 grid max-w-2xl grid-cols-3 gap-3">
+        <div class="rounded-3xl bg-white/80 p-5 shadow-sm"><strong class="block text-3xl text-dantas-blue">50+</strong><span class="text-sm font-semibold text-slate-600">anos de história</span></div>
+        <div class="rounded-3xl bg-white/80 p-5 shadow-sm"><strong class="block text-3xl text-dantas-red">46k+</strong><span class="text-sm font-semibold text-slate-600">seguidores no Instagram</span></div>
+        <div class="rounded-3xl bg-white/80 p-5 shadow-sm"><strong class="block text-3xl text-dantas-blue">360°</strong><span class="text-sm font-semibold text-slate-600">moda para a família</span></div>
+      </div>
+    </div>
+    <div class="relative">
+      <div class="absolute -left-8 top-8 h-48 w-48 rounded-full bg-dantas-red/20 blur-3xl"></div>
+      <div class="card relative overflow-hidden p-5">
+        <div class="rounded-[1.5rem] bg-gradient-to-br from-dantas-blue via-blue-700 to-dantas-red p-8 text-white">
+          <div class="rounded-3xl bg-white/10 p-6 backdrop-blur">
+            <p class="text-sm font-bold uppercase tracking-[0.24em] text-blue-100">Coleção em destaque</p>
+            <h2 class="mt-4 text-4xl font-black">Seus pés sempre na moda</h2>
+            <p class="mt-4 text-blue-50">Feminino, masculino, infantil, esportivo, bolsas, malas e acessórios com curadoria local.</p>
+          </div>
+          <div class="mt-6 grid grid-cols-2 gap-4">
+            {['👠 Feminino','👞 Masculino','👟 Esportivo','👜 Bolsas'].map((item) => <div class="rounded-2xl bg-white/95 p-5 text-lg font-black text-dantas-navy shadow-sm">{item}</div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

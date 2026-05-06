@@ -1,0 +1,5 @@
+---
+import { site } from '@/data/site';
+const message = encodeURIComponent('Olá, Casa Dantas! Vim pelo site e quero atendimento.');
+---
+<a href={`${site.whatsappLink}?text=${message}`} target="_blank" rel="noreferrer" class="fixed bottom-5 right-5 z-50 inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-3xl text-white shadow-glow transition hover:-translate-y-1 hover:bg-emerald-600" aria-label="Falar com a Casa Dantas no WhatsApp">✆</a>

@@ -1,0 +1,33 @@
+---
+import { navigation, site } from '@/data/site';
+---
+<footer class="border-t border-slate-200 bg-dantas-navy text-white">
+  <div class="container-page grid gap-10 py-14 md:grid-cols-4">
+    <div class="md:col-span-2">
+      <div class="text-2xl font-black">Casa Dantas</div>
+      <p class="mt-3 max-w-xl text-blue-100">Desde 1973 em Quixadá, levando moda, conforto e tradição para toda a família.</p>
+      <p class="mt-4 text-sm font-bold uppercase tracking-[0.2em] text-dantas-gold">{site.slogan}</p>
+    </div>
+    <div>
+      <h2 class="font-black">Navegação</h2>
+      <div class="mt-4 grid gap-2">
+        {navigation.map((item) => <a class="text-blue-100 hover:text-white" href={item.href}>{item.label}</a>)}
+      </div>
+    </div>
+    <div>
+      <h2 class="font-black">Contato</h2>
+      <div class="mt-4 grid gap-2 text-blue-100">
+        <a href={`tel:${site.phone.replace(/\D/g, '')}`}>{site.phone}</a>
+        <a href={site.whatsappLink} target="_blank" rel="noreferrer">{site.whatsapp}</a>
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+        <a href={site.mapUrl} target="_blank" rel="noreferrer">Ver localização</a>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-white/10 py-6">
+    <div class="container-page flex flex-col gap-3 text-sm text-blue-100 md:flex-row md:items-center md:justify-between">
+      <span>© {new Date().getFullYear()} Casa Dantas Quixadá. Todos os direitos reservados.</span>
+      <span><a href="/privacidade" class="hover:text-white">Privacidade</a> · <a href="/termos" class="hover:text-white">Termos</a></span>
+    </div>
+  </div>
+</footer>

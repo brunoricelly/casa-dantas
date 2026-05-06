@@ -1,0 +1,19 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductCatalog from '@/components/ProductCatalog';
+import { products } from '@/data/products';
+---
+<BaseLayout title="Catálogo | Casa Dantas Quixadá" description="Catálogo online Casa Dantas com calçados femininos, masculinos, infantis, bolsas, malas e acessórios.">
+  <section class="bg-brand-radial py-20">
+    <div class="container-page">
+      <span class="eyebrow">Catálogo inteligente</span>
+      <h1 class="mt-5 max-w-4xl text-5xl font-black tracking-tight text-dantas-navy sm:text-6xl">Escolha, adicione ao carrinho e finalize pelo WhatsApp.</h1>
+      <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-700">Esta primeira versão já funciona como vitrine/carrinho assistido. A próxima etapa adiciona estoque real, pagamentos PIX/cartão e área do cliente.</p>
+    </div>
+  </section>
+  <section class="py-14">
+    <div class="container-page">
+      <ProductCatalog client:load products={products} />
+    </div>
+  </section>
+</BaseLayout>

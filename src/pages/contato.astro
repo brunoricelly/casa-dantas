@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { site } from '@/data/site';
+---
+<BaseLayout title="Contato | Casa Dantas Quixadá" description="Fale com a Casa Dantas: telefone, WhatsApp, e-mail e endereço em Quixadá-CE.">
+  <section class="bg-brand-radial py-24">
+    <div class="container-page grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+      <div>
+        <span class="eyebrow">Fale conosco</span>
+        <h1 class="mt-5 text-5xl font-black tracking-tight text-dantas-navy">Atendimento rápido para sua compra.</h1>
+        <div class="mt-8 grid gap-4 text-lg text-slate-700">
+          <a href={`tel:${site.phone.replace(/\D/g, '')}`}><strong>Telefone:</strong> {site.phone}</a>
+          <a href={site.whatsappLink} target="_blank" rel="noreferrer"><strong>WhatsApp:</strong> {site.whatsapp}</a>
+          <a href={`mailto:${site.email}`}><strong>E-mail:</strong> {site.email}</a>
+          <a href={site.mapUrl} target="_blank" rel="noreferrer"><strong>Endereço:</strong> {site.address}</a>
+        </div>
+      </div>
+      <form class="card p-6" name="contato" method="post">
+        <div class="grid gap-4">
+          <input class="rounded-2xl border border-slate-200 px-4 py-4 outline-none focus:border-dantas-blue" placeholder="Nome" name="nome" required />
+          <input class="rounded-2xl border border-slate-200 px-4 py-4 outline-none focus:border-dantas-blue" placeholder="E-mail" type="email" name="email" required />
+          <input class="rounded-2xl border border-slate-200 px-4 py-4 outline-none focus:border-dantas-blue" placeholder="WhatsApp" name="whatsapp" />
+          <textarea class="min-h-36 rounded-2xl border border-slate-200 px-4 py-4 outline-none focus:border-dantas-blue" placeholder="Mensagem" name="mensagem" required></textarea>
+          <button class="btn-primary" type="submit">Enviar mensagem</button>
+        </div>
+      </form>
+    </div>
+  </section>
+  <section class="py-10">
+    <div class="container-page">
+      <a href={site.mapUrl} target="_blank" rel="noreferrer" class="block rounded-[2rem] border border-slate-200 bg-slate-100 p-10 text-center shadow-sm">
+        <div class="text-5xl">📍</div>
+        <h2 class="mt-4 text-3xl font-black text-dantas-navy">Ver localização no Google Maps</h2>
+        <p class="mt-2 text-slate-600">{site.address}</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

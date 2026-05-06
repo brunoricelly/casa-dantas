@@ -1,0 +1,42 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/Hero.astro';
+import CategoryGrid from '@/components/CategoryGrid.astro';
+import Newsletter from '@/components/Newsletter.astro';
+import ProductCatalog from '@/components/ProductCatalog';
+import { products } from '@/data/products';
+import { site } from '@/data/site';
+const featured = products.slice(0, 6);
+---
+<BaseLayout title="Casa Dantas Quixadá | Calçados, bolsas e acessórios" description="Casa Dantas: loja tradicional de calçados, bolsas, malas e acessórios em Quixadá desde 1973.">
+  <Hero />
+  <CategoryGrid />
+  <section class="bg-slate-50 py-20">
+    <div class="container-page">
+      <div class="max-w-3xl">
+        <span class="eyebrow">Vitrine online</span>
+        <h2 class="section-title mt-5">Produtos selecionados para começar sua compra.</h2>
+        <p class="mt-4 text-lg leading-8 text-slate-600">Explore marcas conhecidas e finalize seu pedido com atendimento humano pelo WhatsApp.</p>
+      </div>
+      <div class="mt-10">
+        <ProductCatalog client:load products={featured} />
+      </div>
+    </div>
+  </section>
+  <section class="py-20">
+    <div class="container-page grid gap-6 lg:grid-cols-3">
+      <div class="card p-8 lg:col-span-2">
+        <span class="eyebrow">Tradição + modernidade</span>
+        <h2 class="section-title mt-5">Mais de 50 anos acompanhando a moda e as famílias de Quixadá.</h2>
+        <p class="mt-5 text-lg leading-8 text-slate-600">Fundada em maio de 1973, a Casa Dantas combina atendimento próximo, variedade e curadoria de produtos para todas as idades.</p>
+        <a href="/sobre" class="btn-primary mt-8">Conheça a história</a>
+      </div>
+      <div class="rounded-[2rem] bg-dantas-red p-8 text-white shadow-glow">
+        <h3 class="text-3xl font-black">Atendimento rápido</h3>
+        <p class="mt-4 text-red-50">Dúvidas sobre tamanho, disponibilidade ou entrega? Fale direto com a equipe.</p>
+        <a href={site.whatsappLink} target="_blank" rel="noreferrer" class="mt-8 inline-flex rounded-full bg-white px-6 py-3 font-black text-dantas-red">Chamar no WhatsApp</a>
+      </div>
+    </div>
+  </section>
+  <Newsletter />
+</BaseLayout>

@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout title="Sobre a Casa Dantas | Tradição desde 1973" description="Conheça a história da Casa Dantas, loja tradicional de calçados, bolsas e acessórios em Quixadá-CE.">
+  <section class="bg-brand-radial py-24">
+    <div class="container-page max-w-5xl">
+      <span class="eyebrow">Nossa história</span>
+      <h1 class="mt-6 text-5xl font-black tracking-tight text-dantas-navy sm:text-6xl">Desde maio de 1973, seus pés sempre na moda.</h1>
+      <p class="mt-6 text-xl leading-9 text-slate-700">A Casa Dantas nasceu em Quixadá com um compromisso simples e forte: oferecer variedade, qualidade e atendimento próximo para famílias, jovens e adultos da região.</p>
+    </div>
+  </section>
+  <section class="py-20">
+    <div class="container-page grid gap-6 md:grid-cols-3">
+      {[
+        ['Tradição', 'Mais de cinco décadas de história e confiança local.'],
+        ['Variedade', 'Calçados femininos, masculinos, infantis, esportivos, bolsas, malas e acessórios.'],
+        ['Atendimento', 'Relacionamento próximo, orientação de compra e presença digital ativa.']
+      ].map(([title, text]) => <div class="card p-8"><h2 class="text-2xl font-black text-dantas-blue">{title}</h2><p class="mt-3 leading-7 text-slate-600">{text}</p></div>)}
+    </div>
+  </section>
+</BaseLayout>

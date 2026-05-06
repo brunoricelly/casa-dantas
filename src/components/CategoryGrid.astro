@@ -1,0 +1,26 @@
+---
+import { categories } from '@/data/categories';
+---
+<section class="py-20">
+  <div class="container-page">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div>
+        <span class="eyebrow">Categorias</span>
+        <h2 class="section-title mt-5">Encontre por estilo, ocasião e necessidade.</h2>
+      </div>
+      <a href="/catalogo" class="btn-secondary">Ver tudo</a>
+    </div>
+    <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {categories.map((cat) => (
+        <a href={`/catalogo?categoria=${cat.slug}`} class="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
+          <div class={`h-2 bg-gradient-to-r ${cat.color}`}></div>
+          <div class="p-6">
+            <div class="text-4xl">{cat.icon}</div>
+            <h3 class="mt-5 text-xl font-black text-dantas-navy">{cat.name}</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">{cat.description}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
