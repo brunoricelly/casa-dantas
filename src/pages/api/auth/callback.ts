@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../../../db';
 import { users } from '../../../db/schema';
 import { createToken, getAdminEmails, getSiteUrl, setAdminCookie } from '../../../utils/auth';
+import { getEnv } from '../../../utils/env';
 
 type GoogleUser = {
   email: string;
@@ -20,14 +21,14 @@ export const GET: APIRoute = async ({ cookies, redirect, url }) => {
     return new Response('Fluxo OAuth inválido. Tente novamente.', { status: 400 });
   }
 
-  const clientId = import.meta.env.GOOGLE_CLIENT_ID;
-  const clientSecret = import.meta.env.GOOGLE_CLIENT_SECRET;
+  const clientId = getEnv('GOOGLE_CLIENT_ID');
+  const clientSecret = getEnv('GOOGLE_CLIENT_SECRET');
   if (!clientId || !clientSecret) {
     return new Response('GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET não configurados.', { status: 500 });
   }
 
   const siteUrl = getSiteUrl(url.origin);
-  const redirectUri = import.meta.env.GOOGLE_REDIRECT_URI || `${siteUrl}/api/auth/callback`;
+  const redirectUri = getEnv('GOOGLE_REDIRECT_URI') || `${siteUrl}/api/auth/callback`;
 
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',

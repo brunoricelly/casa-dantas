@@ -1,12 +1,13 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import { getEnv } from './env';
 
 const s3Client = new S3Client({
-  region: import.meta.env.S3_REGION || 'garage',
-  endpoint: import.meta.env.S3_ENDPOINT || 'https://storage.chatwoot.space',
+  region: getEnv('S3_REGION', 'garage'),
+  endpoint: getEnv('S3_ENDPOINT', 'https://storage.chatwoot.space'),
   credentials: {
-    accessKeyId: import.meta.env.S3_ACCESS_KEY_ID || '',
-    secretAccessKey: import.meta.env.S3_SECRET_ACCESS_KEY || '',
+    accessKeyId: getEnv('S3_ACCESS_KEY_ID'),
+    secretAccessKey: getEnv('S3_SECRET_ACCESS_KEY'),
   },
   forcePathStyle: true,
 });
@@ -14,7 +15,7 @@ const s3Client = new S3Client({
 export async function uploadImage(buffer: Buffer, mimetype: string, originalName: string) {
   const extension = originalName.split('.').pop();
   const fileName = `${uuidv4()}.${extension}`;
-  const bucket = import.meta.env.S3_BUCKET || 'files.chatwoot.space';
+  const bucket = getEnv('S3_BUCKET', 'files.chatwoot.space');
 
   const command = new PutObjectCommand({
     Bucket: bucket,

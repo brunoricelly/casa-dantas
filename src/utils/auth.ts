@@ -1,5 +1,6 @@
 import type { AstroCookies } from 'astro';
 import { SignJWT, jwtVerify } from 'jose';
+import { getEnv, isProduction } from './env';
 
 export type UserRole = 'administrador' | 'editor';
 
@@ -12,15 +13,15 @@ export type SessionUser = {
   categorias?: string[];
 };
 
-const rawSecret = import.meta.env.JWT_SECRET || 'dev-only-change-me-casa-dantas';
+const rawSecret = getEnv('JWT_SECRET', 'dev-only-change-me-casa-dantas');
 const JWT_SECRET = new TextEncoder().encode(rawSecret);
 
 export function getSiteUrl(requestUrl?: string) {
-  return (import.meta.env.PUBLIC_SITE_URL || import.meta.env.SITE_URL || requestUrl || 'https://casadantas.chatwoot.space').replace(/\/$/, '');
+  return (getEnv('PUBLIC_SITE_URL') || getEnv('SITE_URL') || requestUrl || 'https://casadantas.chatwoot.space').replace(/\/$/, '');
 }
 
 export function getAdminEmails() {
-  const configured = `${import.meta.env.ADMIN_EMAILS || import.meta.env.ADMIN_EMAIL || 'ricelly.bruno@gmail.com'}`;
+  const configured = `${getEnv('ADMIN_EMAILS') || getEnv('ADMIN_EMAIL') || 'ricelly.bruno@gmail.com'}`;
   return configured
     .split(',')
     .map((email) => email.trim().toLowerCase())
@@ -79,7 +80,7 @@ export function setAdminCookie(cookies: AstroCookies, token: string) {
   cookies.set('admin_token', token, {
     path: '/',
     httpOnly: true,
-    secure: import.meta.env.PROD,
+    secure: isProduction(),
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
   });
