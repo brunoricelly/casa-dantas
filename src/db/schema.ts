@@ -1,14 +1,14 @@
 import { sql } from 'drizzle-orm';
-import { boolean, pgEnum, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 
-export const userRole = pgEnum('user_role', ['administrador', 'editor']);
+export type UserRole = 'administrador' | 'editor';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }),
   avatar_url: text('avatar_url'),
-  role: userRole('role').notNull().default('editor'),
+  role: varchar('role', { length: 30 }).$type<UserRole>().notNull().default('editor'),
   marcas: text('marcas').array().notNull().default(sql`ARRAY[]::text[]`),
   categorias: text('categorias').array().notNull().default(sql`ARRAY[]::text[]`),
   active: boolean('active').notNull().default(true),

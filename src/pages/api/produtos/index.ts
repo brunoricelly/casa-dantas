@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { desc, eq } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import { db } from '../../../db';
 import { products } from '../../../db/schema';
 import { canManageCatalog, canManageProductScope, requireSession } from '../../../utils/auth';

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { asc, eq } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import { db } from '../../../db';
 import { users } from '../../../db/schema';
 import { requireAdmin, requireSession } from '../../../utils/auth';

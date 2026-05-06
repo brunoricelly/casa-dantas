@@ -4,19 +4,13 @@ import { sql } from 'drizzle-orm';
 
 export const GET: APIRoute = async () => {
   try {
-    await db.execute(sql`DO $$ BEGIN
-      CREATE TYPE user_role AS ENUM ('administrador', 'editor');
-    EXCEPTION
-      WHEN duplicate_object THEN null;
-    END $$;`);
-
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) NOT NULL UNIQUE,
         name VARCHAR(255),
         avatar_url TEXT,
-        role user_role NOT NULL DEFAULT 'editor',
+        role VARCHAR(30) NOT NULL DEFAULT 'editor',
         marcas TEXT[] NOT NULL DEFAULT ARRAY[]::text[],
         categorias TEXT[] NOT NULL DEFAULT ARRAY[]::text[],
         active BOOLEAN NOT NULL DEFAULT true,
@@ -25,6 +19,15 @@ export const GET: APIRoute = async () => {
         last_login_at TIMESTAMP
       );
     `);
+
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255);`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(30) NOT NULL DEFAULT 'editor';`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS marcas TEXT[] NOT NULL DEFAULT ARRAY[]::text[];`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS categorias TEXT[] NOT NULL DEFAULT ARRAY[]::text[];`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT true;`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`);
+    await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP;`);
 
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS products (
