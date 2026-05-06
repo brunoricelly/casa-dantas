@@ -4,22 +4,10 @@ import Hero from '@/components/Hero.astro';
 import CategoryGrid from '@/components/CategoryGrid.astro';
 import Newsletter from '@/components/Newsletter.astro';
 import ProductCatalog from '@/components/ProductCatalog';
-import { db } from '../db';
-import { products as schemaProducts } from '../db/schema';
-import { desc } from 'drizzle-orm';
 import { site } from '@/data/site';
+import { getCatalogProducts } from '@/utils/catalog';
 
-const rawProducts = await db.select().from(schemaProducts).orderBy(desc(schemaProducts.created_at)).limit(6);
-
-const featured = rawProducts.map((p: any) => ({
-  id: p.id.toString(),
-  name: p.nome,
-  category: 'Calçados', 
-  image: p.imagem_url || '/placeholder.jpg',
-  brand: 'Casa Dantas',
-  sku: p.codigo,
-  specs: p.especificacoes
-}));
+const featured = await getCatalogProducts(6);
 ---
 <BaseLayout title="Casa Dantas Quixadá | Calçados, bolsas e acessórios" description="Casa Dantas: loja tradicional de calçados, bolsas, malas e acessórios em Quixadá desde 1973.">
   <Hero />
