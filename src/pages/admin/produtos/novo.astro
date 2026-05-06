@@ -1,75 +1,84 @@
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { categories } from '../../../data/categories';
 ---
 
 <AdminLayout>
   <span slot="header">Novo Produto</span>
   
-  <div class="max-w-2xl bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+  <div class="max-w-3xl rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
     <form id="produtoForm" class="space-y-6">
-      
-      <div>
-        <label for="codigo" class="block text-sm font-medium text-slate-700">Código do Produto (Referência)</label>
-        <input type="text" name="codigo" id="codigo" required class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label for="codigo" class="block text-sm font-bold text-slate-700">Código / Referência *</label>
+          <input type="text" name="codigo" id="codigo" required class="mt-1 block w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" />
+        </div>
+        <div>
+          <label for="nome" class="block text-sm font-bold text-slate-700">Nome *</label>
+          <input type="text" name="nome" id="nome" required class="mt-1 block w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" />
+        </div>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label for="marca" class="block text-sm font-bold text-slate-700">Marca</label>
+          <input type="text" name="marca" id="marca" placeholder="Ex.: Vizzano, Usaflex, Chenson" class="mt-1 block w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm" />
+        </div>
+        <div>
+          <label for="categoria" class="block text-sm font-bold text-slate-700">Categoria</label>
+          <select name="categoria" id="categoria" class="mt-1 block w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+            <option value="">Selecione</option>
+            {categories.map((cat) => <option value={cat.slug}>{cat.name}</option>)}
+          </select>
+        </div>
       </div>
 
       <div>
-        <label for="nome" class="block text-sm font-medium text-slate-700">Nome</label>
-        <input type="text" name="nome" id="nome" required class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        <label for="especificacoes" class="block text-sm font-bold text-slate-700">Especificações *</label>
+        <textarea name="especificacoes" id="especificacoes" rows="5" required placeholder="Material, cor, tamanhos disponíveis, diferenciais..." class="mt-1 block w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"></textarea>
       </div>
 
       <div>
-        <label for="especificacoes" class="block text-sm font-medium text-slate-700">Especificações (Material, Cor, Tamanhos)</label>
-        <textarea name="especificacoes" id="especificacoes" rows="4" required class="mt-1 block w-full border border-slate-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+        <label for="imagem" class="block text-sm font-bold text-slate-700">Imagem</label>
+        <input type="file" name="imagem" id="imagem" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100" />
       </div>
 
-      <div>
-        <label for="imagem" class="block text-sm font-medium text-slate-700">Imagem</label>
-        <input type="file" name="imagem" id="imagem" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-      </div>
+      <div id="error-msg" class="hidden rounded-xl bg-red-50 p-3 text-sm text-red-700">Erro ao salvar produto.</div>
 
-      <div id="error-msg" class="text-red-500 text-sm hidden">Erro ao salvar produto.</div>
-
-      <div class="pt-4 flex justify-end space-x-3">
-        <a href="/admin/produtos" class="bg-white border border-slate-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none">
-          Cancelar
-        </a>
-        <button type="submit" id="submitBtn" class="bg-blue-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none">
-          Salvar
-        </button>
+      <div class="flex justify-end gap-3 pt-4">
+        <a href="/admin/produtos" class="inline-flex rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Cancelar</a>
+        <button type="submit" id="submitBtn" class="inline-flex rounded-full border border-transparent bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-700">Salvar Produto</button>
       </div>
     </form>
   </div>
 </AdminLayout>
 
 <script>
-  const form = document.getElementById('produtoForm');
-  const btn = document.getElementById('submitBtn');
+  const form = document.getElementById('produtoForm') as HTMLFormElement | null;
+  const btn = document.getElementById('submitBtn') as HTMLButtonElement | null;
   const errorMsg = document.getElementById('error-msg');
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData(form as HTMLFormElement);
-    
-    btn!.textContent = 'Salvando...';
-    (btn as HTMLButtonElement).disabled = true;
+    if (!btn) return;
+    const formData = new FormData(form);
+    btn.textContent = 'Salvando...';
+    btn.disabled = true;
+    errorMsg?.classList.add('hidden');
 
     try {
-      const res = await fetch('/api/produtos', {
-        method: 'POST',
-        body: formData, // Envia multipart/form-data
-      });
-
-      if (res.ok) {
-        window.location.href = '/admin/produtos';
-      } else {
+      const res = await fetch('/api/produtos', { method: 'POST', body: formData });
+      if (res.ok) window.location.href = '/admin/produtos';
+      else {
+        const data = await res.json().catch(() => ({}));
+        if (errorMsg) errorMsg.textContent = data.error || 'Erro ao salvar produto.';
         errorMsg?.classList.remove('hidden');
       }
-    } catch (err) {
+    } catch (_) {
       errorMsg?.classList.remove('hidden');
     } finally {
-      btn!.textContent = 'Salvar';
-      (btn as HTMLButtonElement).disabled = false;
+      btn.textContent = 'Salvar Produto';
+      btn.disabled = false;
     }
   });
 </script>

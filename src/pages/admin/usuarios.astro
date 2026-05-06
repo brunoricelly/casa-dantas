@@ -1,0 +1,160 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { db } from '../../db';
+import { users } from '../../db/schema';
+import { asc } from 'drizzle-orm';
+
+const listaUsuarios = await db.select().from(users).orderBy(asc(users.email));
+---
+
+<AdminLayout>
+  <span slot="header">Usuários autorizados</span>
+
+  <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+    <section class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+      <div class="border-b border-slate-100 p-6">
+        <h2 class="text-2xl font-black text-slate-800">Acessos do painel</h2>
+        <p class="mt-1 text-sm text-slate-500">Administrador tem acesso full. Editor pode criar, editar e atualizar produtos conforme escopos de marca/categoria.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">E-mail</th>
+              <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Perfil</th>
+              <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Escopos</th>
+              <th class="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 bg-white">
+            {listaUsuarios.map((u: any) => (
+              <tr>
+                <td class="px-6 py-4">
+                  <div class="font-black text-slate-900">{u.email}</div>
+                  <div class="text-xs text-slate-500">{u.active ? 'Ativo' : 'Inativo'}</div>
+                </td>
+                <td class="whitespace-nowrap px-6 py-4">
+                  <span class:list={["rounded-full px-3 py-1 text-xs font-black", u.role === 'administrador' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700']}>{u.role}</span>
+                </td>
+                <td class="px-6 py-4 text-sm text-slate-600">
+                  <p><strong>Marcas:</strong> {(u.marcas || []).length ? u.marcas.join(', ') : 'todas'}</p>
+                  <p><strong>Categorias:</strong> {(u.categorias || []).length ? u.categorias.join(', ') : 'todas'}</p>
+                </td>
+                <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                  <button class="edit-user text-blue-600 hover:text-blue-900" data-user={JSON.stringify(u)}>Editar</button>
+                  <button class="delete-user ml-4 text-red-600 hover:text-red-900" data-id={u.id}>Excluir</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="h-fit rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <h3 class="text-xl font-black text-slate-800">Autorizar e-mail</h3>
+      <p class="mt-1 text-sm text-slate-500">Depois de cadastrado, a pessoa entra pelo Google OAuth usando o mesmo e-mail.</p>
+      <form id="usuarioForm" class="mt-6 space-y-4">
+        <input type="hidden" name="id" id="userId" />
+        <div>
+          <label class="block text-sm font-bold text-slate-700" for="email">E-mail *</label>
+          <input id="email" name="email" type="email" required class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" placeholder="usuario@gmail.com" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700" for="role">Perfil</label>
+          <select id="role" name="role" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2">
+            <option value="editor">Editor de produtos</option>
+            <option value="administrador">Administrador full</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700" for="marcas">Marcas permitidas</label>
+          <textarea id="marcas" name="marcas" rows="2" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" placeholder="Vizzano, Usaflex, Chenson"></textarea>
+          <p class="mt-1 text-xs text-slate-500">Separe por vírgula. Deixe vazio para todas.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700" for="categorias">Categorias permitidas</label>
+          <textarea id="categorias" name="categorias" rows="2" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2" placeholder="feminino, masculino, bolsas"></textarea>
+          <p class="mt-1 text-xs text-slate-500">Use os slugs das categorias. Vazio = todas.</p>
+        </div>
+        <label class="flex items-center gap-2 text-sm font-bold text-slate-700">
+          <input id="active" name="active" type="checkbox" checked /> Ativo
+        </label>
+        <div id="user-error" class="hidden rounded-xl bg-red-50 p-3 text-sm text-red-700"></div>
+        <button id="userSubmit" type="submit" class="w-full rounded-full bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-700">Salvar acesso</button>
+        <button id="clearForm" type="button" class="w-full rounded-full border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Limpar</button>
+      </form>
+    </aside>
+  </div>
+</AdminLayout>
+
+<script>
+  const form = document.getElementById('usuarioForm') as HTMLFormElement | null;
+  const errorBox = document.getElementById('user-error');
+  const clearBtn = document.getElementById('clearForm');
+
+  function setError(message: string) {
+    if (!errorBox) return;
+    errorBox.textContent = message;
+    errorBox.classList.remove('hidden');
+  }
+
+  function clearForm() {
+    form?.reset();
+    const id = document.getElementById('userId') as HTMLInputElement | null;
+    if (id) id.value = '';
+    errorBox?.classList.add('hidden');
+  }
+
+  clearBtn?.addEventListener('click', clearForm);
+
+  document.querySelectorAll<HTMLButtonElement>('.edit-user').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const user = JSON.parse(btn.dataset.user || '{}');
+      (document.getElementById('userId') as HTMLInputElement).value = user.id || '';
+      (document.getElementById('email') as HTMLInputElement).value = user.email || '';
+      (document.getElementById('role') as HTMLSelectElement).value = user.role || 'editor';
+      (document.getElementById('marcas') as HTMLTextAreaElement).value = (user.marcas || []).join(', ');
+      (document.getElementById('categorias') as HTMLTextAreaElement).value = (user.categorias || []).join(', ');
+      (document.getElementById('active') as HTMLInputElement).checked = user.active !== false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.delete-user').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      if (!id || !confirm('Remover este acesso?')) return;
+      const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+      if (res.ok) window.location.reload();
+      else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Erro ao remover acesso.');
+      }
+    });
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox?.classList.add('hidden');
+    const fd = new FormData(form);
+    const id = `${fd.get('id') || ''}`;
+    const payload = {
+      email: fd.get('email'),
+      role: fd.get('role'),
+      marcas: fd.get('marcas'),
+      categorias: fd.get('categorias'),
+      active: fd.get('active') === 'on',
+    };
+    const res = await fetch(id ? `/api/usuarios/${id}` : '/api/usuarios', {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) window.location.reload();
+    else {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error || 'Erro ao salvar acesso.');
+    }
+  });
+</script>

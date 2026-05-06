@@ -1,20 +1,32 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { db } from '../../db';
-import { products } from '../../db/schema';
+import { products, users } from '../../db/schema';
 import { sql } from 'drizzle-orm';
 
-const result = await db.select({ count: sql<number>`count(*)` }).from(products);
-const totalProdutos = result[0]?.count || 0;
+const [produtosResult] = await db.select({ count: sql<number>`count(*)` }).from(products);
+const [usuariosResult] = await db.select({ count: sql<number>`count(*)` }).from(users);
+const totalProdutos = Number(produtosResult?.count || 0);
+const totalUsuarios = Number(usuariosResult?.count || 0);
 ---
 
 <AdminLayout>
   <span slot="header">Dashboard</span>
   
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-      <h3 class="text-slate-500 text-sm font-medium">Total de Produtos</h3>
-      <p class="text-3xl font-bold text-slate-800 mt-2">{totalProdutos}</p>
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <h3 class="text-sm font-medium text-slate-500">Total de Produtos</h3>
+      <p class="mt-2 text-4xl font-black text-slate-800">{totalProdutos}</p>
+      <a href="/admin/produtos" class="mt-4 inline-flex text-sm font-bold text-blue-600 hover:underline">Gerenciar vitrine →</a>
+    </div>
+    <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <h3 class="text-sm font-medium text-slate-500">Usuários autorizados</h3>
+      <p class="mt-2 text-4xl font-black text-slate-800">{totalUsuarios}</p>
+      <a href="/admin/usuarios" class="mt-4 inline-flex text-sm font-bold text-blue-600 hover:underline">Gerenciar acessos →</a>
+    </div>
+    <div class="rounded-2xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
+      <h3 class="text-sm font-black uppercase tracking-wide text-blue-700">Vitrine sem preço</h3>
+      <p class="mt-3 text-sm leading-6 text-blue-950">Cadastre código, nome, marca, categoria, especificações e imagens. Os clientes adicionam à lista e chamam no WhatsApp.</p>
     </div>
   </div>
 </AdminLayout>
