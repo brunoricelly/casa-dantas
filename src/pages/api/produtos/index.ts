@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../db';
-import { products } from '../../db/schema';
-import { uploadImage } from '../../utils/s3';
+import { db } from '../../../db';
+import { products } from '../../../db/schema';
+import { uploadImage } from '../../../utils/s3';
 
 export const POST: APIRoute = async ({ request }) => {
   try {

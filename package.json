@@ -14,16 +14,23 @@
     "@astrojs/node": "^10.0.6",
     "@astrojs/react": "^5.0.4",
     "@astrojs/sitemap": "^3.7.2",
+    "@aws-sdk/client-s3": "^3.1043.0",
+    "@aws-sdk/s3-request-presigner": "^3.1043.0",
     "@tailwindcss/vite": "^4.2.4",
     "astro": "^6.2.2",
+    "drizzle-orm": "^0.45.2",
+    "jose": "^6.2.3",
     "lucide-react": "^0.468.0",
+    "postgres": "^3.4.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2"
+    "@types/react-dom": "^19.0.2",
+    "drizzle-kit": "^0.31.10"
   },
   "overrides": {
     "yaml": "^2.8.3"

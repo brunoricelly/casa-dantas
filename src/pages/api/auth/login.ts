@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createToken } from '../../utils/auth';
+import { createToken } from '../../../utils/auth';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const { username, password } = await request.json();

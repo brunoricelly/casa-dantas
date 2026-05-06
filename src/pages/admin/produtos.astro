@@ -28,7 +28,7 @@ const listaProdutos = await db.select().from(products).orderBy(desc(products.cre
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-slate-200">
-        {listaProdutos.map((p) => (
+        {listaProdutos.map((p: any) => (
           <tr>
             <td class="px-6 py-4 whitespace-nowrap">
               {p.imagem_url ? (

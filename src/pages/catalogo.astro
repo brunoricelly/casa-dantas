@@ -7,7 +7,7 @@ import { desc } from 'drizzle-orm';
 
 const rawProducts = await db.select().from(schemaProducts).orderBy(desc(schemaProducts.created_at));
 
-const mappedProducts = rawProducts.map((p) => ({
+const mappedProducts = rawProducts.map((p: any) => ({
   id: p.id.toString(),
   name: p.nome,
   category: 'Calçados', 

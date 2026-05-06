@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 // Se já estiver logado, redireciona
 if (Astro.cookies.has('admin_token')) {
@@ -7,7 +7,7 @@ if (Astro.cookies.has('admin_token')) {
 }
 ---
 
-<Layout title="Login Admin - Casa Dantas" description="Área administrativa">
+<BaseLayout title="Login Admin - Casa Dantas" description="Área administrativa">
   <div class="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
       <div>
@@ -38,7 +38,7 @@ if (Astro.cookies.has('admin_token')) {
       </form>
     </div>
   </div>
-</Layout>
+</BaseLayout>
 
 <script>
   const form = document.getElementById('loginForm');

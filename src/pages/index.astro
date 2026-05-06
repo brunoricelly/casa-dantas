@@ -11,7 +11,7 @@ import { site } from '@/data/site';
 
 const rawProducts = await db.select().from(schemaProducts).orderBy(desc(schemaProducts.created_at)).limit(6);
 
-const featured = rawProducts.map((p) => ({
+const featured = rawProducts.map((p: any) => ({
   id: p.id.toString(),
   name: p.nome,
   category: 'Calçados', 
