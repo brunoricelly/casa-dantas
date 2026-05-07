@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Search, ShoppingBag, SlidersHorizontal } from 'lucide-react';
 import { categories } from '@/data/categories';
+import ProductImageCarousel from './ProductImageCarousel';
 
 export type Product = {
   id: string;
@@ -120,69 +121,42 @@ export default function ProductCatalog({ products }: Props) {
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((product) => {
-            const mainImage = product.images?.[0] || product.image;
-            const hasImage = mainImage && mainImage !== '/placeholder.jpg';
-            const hasGallery = product.images && product.images.length > 1;
+          {filtered.map((product) => (
+            <article
+              key={product.id}
+              className="group rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-soft"
+            >
+              <ProductImageCarousel
+                images={product.images}
+                fallbackImage={product.image}
+                alt={product.name}
+              />
 
-            return (
-              <article
-                key={product.id}
-                className="group overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft"
-              >
-                <div className="relative grid aspect-[4/3] place-items-center bg-slate-100">
-                  {hasImage ? (
-                    <img
-                      src={mainImage}
-                      alt={product.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-center text-sm font-medium text-slate-400">
-                      Sem Imagem
-                    </div>
-                  )}
+              <div className="p-2 pt-5">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-dantas-red">
+                  Ref: {product.sku}
+                </p>
 
-                  {hasGallery && (
-                    <div className="absolute bottom-3 left-3 right-3 flex gap-2 overflow-x-auto rounded-2xl bg-white/80 p-2 backdrop-blur">
-                      {product.images?.slice(0, 5).map((img, index) => (
-                        <img
-                          key={`${product.id}-${index}`}
-                          src={img}
-                          alt={`${product.name} ${index + 1}`}
-                          className="h-10 w-10 rounded-xl object-cover ring-1 ring-white"
-                        />
-                      ))}
-                    </div>
-                  )}
+                <h3 className="mt-2 text-xl font-black text-dantas-navy">
+                  {product.name}
+                </h3>
+
+                <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600 line-clamp-3">
+                  {product.specs}
+                </p>
+
+                <div className="mt-5 flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={() => addToCart(product)}
+                    className="rounded-full bg-dantas-blue px-4 py-3 text-sm font-black text-white transition hover:bg-dantas-navy"
+                  >
+                    Adicionar à lista
+                  </button>
                 </div>
-
-                <div className="p-5">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-dantas-red">
-                    Ref: {product.sku}
-                  </p>
-
-                  <h3 className="mt-2 text-xl font-black text-dantas-navy">
-                    {product.name}
-                  </h3>
-
-                  <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600 line-clamp-3">
-                    {product.specs}
-                  </p>
-
-                  <div className="mt-5 flex items-center justify-end">
-                    <button
-                      type="button"
-                      onClick={() => addToCart(product)}
-                      className="rounded-full bg-dantas-blue px-4 py-3 text-sm font-black text-white transition hover:bg-dantas-navy"
-                    >
-                      Adicionar à lista
-                    </button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+              </div>
+            </article>
+          ))}
 
           {filtered.length === 0 && (
             <p className="py-10 text-slate-500">
