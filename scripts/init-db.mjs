@@ -65,6 +65,14 @@ try {
     )
   `;
 
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(30) DEFAULT 'editor'`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS marcas TEXT[] DEFAULT ARRAY[]::text[]`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS categorias TEXT[] DEFAULT ARRAY[]::text[]`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP`;
+  await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS imagem_url TEXT`;
+
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS users_email_unique_idx ON users (email)`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS products_codigo_unique_idx ON products (codigo)`;
   await sql`CREATE INDEX IF NOT EXISTS products_created_at_idx ON products (created_at DESC)`;
