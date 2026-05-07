@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { boolean, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { boolean, integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export type UserRole = 'administrador' | 'editor';
 
@@ -28,4 +28,12 @@ export const products = pgTable('products', {
   imagem_url: text('imagem_url'),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow(),
+});
+
+export const productImages = pgTable('product_images', {
+  id: serial('id').primaryKey(),
+  product_id: integer('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  imagem_url: text('imagem_url').notNull(),
+  sort_order: integer('sort_order').notNull().default(0),
+  created_at: timestamp('created_at').defaultNow(),
 });
