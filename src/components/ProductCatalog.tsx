@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Search, ShoppingBag, SlidersHorizontal, X } from 'lucide-react';
 import { categories } from '@/data/categories';
 import ProductImageCarousel from './ProductImageCarousel';
-
+const WHATSAPP_NUMBER = '5588997085002';
 export type Product = {
   id: string;
   name: string;
@@ -140,7 +140,7 @@ export default function ProductCatalog({ products }: Props) {
 
             {cart.length > 0 && (
               <a
-                href={`https://wa.me/5588997085002?text=${whatsAppText}`}
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsAppText}`}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex w-full justify-center rounded-full bg-emerald-500 px-4 py-3 text-sm font-black text-white hover:bg-emerald-600"
@@ -272,7 +272,7 @@ export default function ProductCatalog({ products }: Props) {
                 </button>
 
                 <a
-                  href={`https://wa.me/5588997085002?text=${selectedWhatsAppText}`}
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${selectedWhatsAppText}`}
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-full bg-emerald-500 px-6 py-4 text-center text-sm font-black text-white transition hover:bg-emerald-600"
