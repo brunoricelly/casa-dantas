@@ -140,7 +140,7 @@ export default function ProductCatalog({ products }: Props) {
 
             {cart.length > 0 && (
               <a
-                href={`https://wa.me/5588997085011?text=${whatsAppText}`}
+                href={`https://wa.me/5588997085002?text=${whatsAppText}`}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex w-full justify-center rounded-full bg-emerald-500 px-4 py-3 text-sm font-black text-white hover:bg-emerald-600"
