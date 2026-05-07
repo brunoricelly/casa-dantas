@@ -1,7 +1,23 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEnv } from '../../utils/env';
+
 const siteUrl = getEnv('PUBLIC_SITE_URL', 'https://casadantas.chatwoot.space');
+
+const error = Astro.url.searchParams.get('error');
+
+const oauthErrors: Record<string, string> = {
+  oauth_sem_codigo: 'O Google não retornou o código de autenticação.',
+  oauth_state_invalido: 'Sessão de login expirada. Tente novamente.',
+  oauth_nao_configurado: 'Google OAuth não configurado no servidor.',
+  oauth_token_invalido: 'Não foi possível validar o login com Google.',
+  oauth_usuario_invalido: 'Não foi possível obter os dados da conta Google.',
+  email_google_nao_verificado: 'Seu e-mail Google ainda não está verificado.',
+  email_nao_autorizado: 'Este e-mail não está autorizado para acessar o painel.',
+  oauth_erro_interno: 'Erro interno no login com Google.',
+};
+
+const oauthError = error ? oauthErrors[error] || 'Erro ao entrar com Google.' : '';
 ---
 
 <BaseLayout
@@ -17,11 +33,30 @@ const siteUrl = getEnv('PUBLIC_SITE_URL', 'https://casadantas.chatwoot.space');
         </div>
         <h2 class="mt-6 text-3xl font-extrabold text-slate-900">Painel Casa Dantas</h2>
         <p class="mt-2 text-sm text-slate-600">
-          Faça login com seu e-mail e senha autorizados.
+          Entre com a conta Google cadastrada pelo administrador.
         </p>
       </div>
 
-      <form id="login-form" class="mt-8 space-y-6">
+      {oauthError && (
+        <div class="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-800">
+          {oauthError}
+        </div>
+      )}
+
+      <a
+        href="/api/auth/google"
+        class="flex w-full items-center justify-center rounded-full bg-dantas-blue px-6 py-3 text-sm font-black text-white shadow-soft transition hover:bg-blue-800 hover:shadow-glow"
+      >
+        Entrar com Google
+      </a>
+
+      <div class="flex items-center gap-3">
+        <div class="h-px flex-1 bg-slate-200"></div>
+        <span class="text-xs font-bold uppercase tracking-widest text-slate-400">backup</span>
+        <div class="h-px flex-1 bg-slate-200"></div>
+      </div>
+
+      <form id="login-form" class="space-y-6">
         <div class="space-y-4">
           <div>
             <label for="email" class="block text-sm font-bold text-slate-700">
@@ -59,14 +94,14 @@ const siteUrl = getEnv('PUBLIC_SITE_URL', 'https://casadantas.chatwoot.space');
         <button
           type="submit"
           id="submit-btn"
-          class="w-full rounded-full bg-dantas-blue px-6 py-3 text-sm font-black text-white shadow-soft transition hover:bg-blue-800 hover:shadow-glow disabled:opacity-60 disabled:cursor-not-allowed"
+          class="w-full rounded-full bg-slate-700 px-6 py-3 text-sm font-black text-white shadow-soft transition hover:bg-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Entrar
+          Entrar com senha
         </button>
       </form>
 
       <div class="rounded-2xl bg-blue-50 p-4 text-sm text-blue-900">
-        <strong>Segurança:</strong> apenas e-mails previamente autorizados pelo administrador acessam o painel.
+        <strong>Segurança:</strong> apenas e-mails previamente cadastrados pelo administrador acessam o painel.
       </div>
     </div>
   </div>
@@ -101,7 +136,7 @@ const siteUrl = getEnv('PUBLIC_SITE_URL', 'https://casadantas.chatwoot.space');
         errorEl.textContent = data.error || 'Erro ao fazer login.';
         errorEl.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Entrar';
+        submitBtn.textContent = 'Entrar com senha';
         return;
       }
 
@@ -112,7 +147,7 @@ const siteUrl = getEnv('PUBLIC_SITE_URL', 'https://casadantas.chatwoot.space');
       errorEl.textContent = 'Erro de conexão. Tente novamente.';
       errorEl.classList.remove('hidden');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Entrar';
+      submitBtn.textContent = 'Entrar com senha';
     }
   });
 </script>
