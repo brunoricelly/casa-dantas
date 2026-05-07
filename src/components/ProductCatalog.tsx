@@ -272,7 +272,7 @@ export default function ProductCatalog({ products }: Props) {
                 </button>
 
                 <a
-                  href={`https://wa.me/5588997085011?text=${selectedWhatsAppText}`}
+                  href={`https://wa.me/5588997085002?text=${selectedWhatsAppText}`}
                   target="_blank"
                   rel="noreferrer"
                   className="rounded-full bg-emerald-500 px-6 py-4 text-center text-sm font-black text-white transition hover:bg-emerald-600"
