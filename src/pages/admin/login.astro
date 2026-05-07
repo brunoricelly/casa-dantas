@@ -1,29 +1,118 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getSession } from '../../utils/auth';
-
-if (await getSession(Astro.cookies)) {
-  return Astro.redirect('/admin');
-}
+import { getEnv } from '../../utils/env';
+const siteUrl = getEnv('PUBLIC_SITE_URL', 'https://casadantas.chatwoot.space');
 ---
 
-<BaseLayout title="Login Admin - Casa Dantas" description="Área administrativa segura da Casa Dantas">
+<BaseLayout
+  title="Login Admin - Casa Dantas"
+  description="Área administrativa segura da Casa Dantas"
+  canonical={`${siteUrl}/admin/login`}
+>
   <div class="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-[2rem] shadow-lg border border-slate-100">
       <div class="text-center">
-        <div class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-dantas-blue text-2xl font-black text-white">CD</div>
+        <div class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-dantas-blue text-2xl font-black text-white">
+          CD
+        </div>
         <h2 class="mt-6 text-3xl font-extrabold text-slate-900">Painel Casa Dantas</h2>
-        <p class="mt-2 text-sm text-slate-600">Entre com Google OAuth 2.0 usando um e-mail autorizado.</p>
+        <p class="mt-2 text-sm text-slate-600">
+          Faça login com seu e-mail e senha autorizados.
+        </p>
       </div>
 
-      <a href="/api/auth/google" class="flex w-full items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:bg-slate-50">
-        <span class="grid h-6 w-6 place-items-center rounded-full bg-blue-600 text-white text-xs">G</span>
-        Entrar com Google
-      </a>
+      <form id="login-form" class="mt-8 space-y-6">
+        <div class="space-y-4">
+          <div>
+            <label for="email" class="block text-sm font-bold text-slate-700">
+              E-mail
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              class="mt-1 block w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 shadow-sm focus:border-dantas-blue focus:outline-none focus:ring-2 focus:ring-dantas-blue/20"
+              placeholder="seu@email.com"
+            />
+          </div>
+          <div>
+            <label for="senha" class="block text-sm font-bold text-slate-700">
+              Senha
+            </label>
+            <input
+              id="senha"
+              name="senha"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="mt-1 block w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 shadow-sm focus:border-dantas-blue focus:outline-none focus:ring-2 focus:ring-dantas-blue/20"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <div id="error-msg" class="hidden rounded-xl bg-red-50 p-4 text-sm font-medium text-red-800"></div>
+        <div id="success-msg" class="hidden rounded-xl bg-green-50 p-4 text-sm font-medium text-green-800"></div>
+
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full rounded-full bg-dantas-blue px-6 py-3 text-sm font-black text-white shadow-soft transition hover:bg-blue-800 hover:shadow-glow disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          Entrar
+        </button>
+      </form>
 
       <div class="rounded-2xl bg-blue-50 p-4 text-sm text-blue-900">
-        <strong>Segurança:</strong> apenas e-mails previamente autorizados acessam o painel.
+        <strong>Segurança:</strong> apenas e-mails previamente autorizados pelo administrador acessam o painel.
       </div>
     </div>
   </div>
 </BaseLayout>
+
+<script>
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const errorEl = document.getElementById('error-msg')!;
+  const successEl = document.getElementById('success-msg')!;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.classList.add('hidden');
+    successEl.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Entrando...';
+
+    const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+    const senha = (document.getElementById('senha') as HTMLInputElement).value;
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorEl.textContent = data.error || 'Erro ao fazer login.';
+        errorEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Entrar';
+        return;
+      }
+
+      successEl.textContent = 'Login realizado! Redirecionando...';
+      successEl.classList.remove('hidden');
+      window.location.href = '/admin';
+    } catch (err) {
+      errorEl.textContent = 'Erro de conexão. Tente novamente.';
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Entrar';
+    }
+  });
+</script>

@@ -8,6 +8,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }),
   avatar_url: text('avatar_url'),
+  password_hash: text('password_hash'),
   role: varchar('role', { length: 30 }).$type<UserRole>().notNull().default('editor'),
   marcas: text('marcas').array().notNull().default(sql`ARRAY[]::text[]`),
   categorias: text('categorias').array().notNull().default(sql`ARRAY[]::text[]`),
