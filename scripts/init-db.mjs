@@ -55,9 +55,20 @@ try {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS product_images (
+      id SERIAL PRIMARY KEY,
+      product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+      imagem_url TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS users_email_unique_idx ON users (email)`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS products_codigo_unique_idx ON products (codigo)`;
   await sql`CREATE INDEX IF NOT EXISTS products_created_at_idx ON products (created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS product_images_product_id_idx ON product_images (product_id)`;
 
   if (ADMIN_EMAIL && ADMIN_PASSWORD) {
     const existing = await sql`
