@@ -27,13 +27,28 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return json({ error: 'Sem permissão para gerenciar produtos' }, 403);
     }
 
-    const formData = await request.formData();
-    const codigo = formData.get('codigo')?.toString().trim() || '';
-    const nome = formData.get('nome')?.toString().trim() || '';
-    const especificacoes = formData.get('especificacoes')?.toString().trim() || '';
-    const marca = formData.get('marca')?.toString().trim() || '';
-    const categoria = formData.get('categoria')?.toString().trim() || '';
-    const file = formData.get('imagem') as File | null;
+    const contentType = request.headers.get('content-type') || '';
+    let codigo = '', nome = '', especificacoes = '', marca = '', categoria = '', imagem_url = '';
+    let file = null;
+
+    if (contentType.includes('application/json')) {
+      const body = await request.json();
+      codigo = body.codigo?.toString().trim() || '';
+      nome = body.nome?.toString().trim() || '';
+      especificacoes = body.especificacoes?.toString().trim() || '';
+      marca = body.marca?.toString().trim() || '';
+      categoria = body.categoria?.toString().trim() || '';
+      imagem_url = body.imagem_url?.toString().trim() || '';
+    } else {
+      const formData = await request.formData();
+      codigo = formData.get('codigo')?.toString().trim() || '';
+      nome = formData.get('nome')?.toString().trim() || '';
+      especificacoes = formData.get('especificacoes')?.toString().trim() || '';
+      marca = formData.get('marca')?.toString().trim() || '';
+      categoria = formData.get('categoria')?.toString().trim() || '';
+      imagem_url = formData.get('imagem_url')?.toString().trim() || '';
+      file = formData.get('imagem') as File | null;
+    }
 
     if (!codigo || !nome || !especificacoes) {
       return json({ error: 'Código, nome e especificações são obrigatórios.' }, 400);
