@@ -6,7 +6,7 @@ const session = await getSession(Astro.cookies);
 const currentPath = Astro.url.pathname;
 
 if (!session) {
-  return Astro.redirect('/admin/login');
+  return Astro.redirect('/admin/login', 302);
 }
 
 const navItems = [
