@@ -8,6 +8,8 @@
     "build": "astro check && astro build",
     "preview": "astro preview --host 0.0.0.0",
     "lint": "astro check"
+    "db:init": "node scripts/init-db.mjs",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
