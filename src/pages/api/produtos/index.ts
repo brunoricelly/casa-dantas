@@ -58,7 +58,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return json({ error: 'Você não tem permissão para esta marca/categoria.' }, 403);
     }
 
-    let imagem_url: string | null = null;
     if (file && file.size > 0) {
       const buffer = Buffer.from(await file.arrayBuffer());
       imagem_url = await uploadImage(buffer, file.type, file.name);
