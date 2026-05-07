@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
+import { Buffer } from 'node:buffer';
 import { desc } from 'drizzle-orm';
 import { db } from '../../../db';
-import { products } from '../../../db/schema';
+import { productImages, products } from '../../../db/schema';
 import { canManageCatalog, canManageProductScope, requireSession } from '../../../utils/auth';
 import { uploadImage } from '../../../utils/s3';
 
@@ -17,22 +18,31 @@ function json(data: unknown, status = 200) {
 
 export const GET: APIRoute = async () => {
   const lista = await db.select().from(products).orderBy(desc(products.created_at));
+
   return json(lista);
 };
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const session = await requireSession(cookies);
+
     if (!canManageCatalog(session)) {
       return json({ error: 'Sem permissão para gerenciar produtos' }, 403);
     }
 
     const contentType = request.headers.get('content-type') || '';
-    let codigo = '', nome = '', especificacoes = '', marca = '', categoria = '', imagem_url = '';
-    let file = null;
+
+    let codigo = '';
+    let nome = '';
+    let especificacoes = '';
+    let marca = '';
+    let categoria = '';
+    let imagem_url = '';
+    let files: File[] = [];
 
     if (contentType.includes('application/json')) {
       const body = await request.json();
+
       codigo = body.codigo?.toString().trim() || '';
       nome = body.nome?.toString().trim() || '';
       especificacoes = body.especificacoes?.toString().trim() || '';
@@ -41,13 +51,25 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       imagem_url = body.imagem_url?.toString().trim() || '';
     } else {
       const formData = await request.formData();
+
       codigo = formData.get('codigo')?.toString().trim() || '';
       nome = formData.get('nome')?.toString().trim() || '';
       especificacoes = formData.get('especificacoes')?.toString().trim() || '';
       marca = formData.get('marca')?.toString().trim() || '';
       categoria = formData.get('categoria')?.toString().trim() || '';
       imagem_url = formData.get('imagem_url')?.toString().trim() || '';
-      file = formData.get('imagem') as File | null;
+
+      const multiFiles = formData
+        .getAll('imagens')
+        .filter((item): item is File => item instanceof File && item.size > 0);
+
+      const singleFile = formData.get('imagem');
+
+      files = multiFiles;
+
+      if (singleFile instanceof File && singleFile.size > 0 && files.length === 0) {
+        files = [singleFile];
+      }
     }
 
     if (!codigo || !nome || !especificacoes) {
@@ -58,25 +80,56 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return json({ error: 'Você não tem permissão para esta marca/categoria.' }, 403);
     }
 
-    if (file && file.size > 0) {
+    const uploadedUrls: string[] = [];
+
+    for (const file of files) {
       const buffer = Buffer.from(await file.arrayBuffer());
-      imagem_url = await uploadImage(buffer, file.type, file.name);
+      const url = await uploadImage(buffer, file.type, file.name);
+
+      uploadedUrls.push(url);
     }
 
-    const [created] = await db.insert(products).values({
-      codigo,
-      nome,
-      especificacoes,
-      marca: marca || null,
-      categoria: categoria || null,
-      imagem_url,
-      updated_at: new Date(),
-    }).returning();
+    if (!imagem_url && uploadedUrls.length > 0) {
+      imagem_url = uploadedUrls[0];
+    }
 
-    return json({ success: true, product: created });
+    const [created] = await db
+      .insert(products)
+      .values({
+        codigo,
+        nome,
+        especificacoes,
+        marca: marca || null,
+        categoria: categoria || null,
+        imagem_url,
+        updated_at: new Date(),
+      })
+      .returning();
+
+    if (uploadedUrls.length > 0) {
+      await db.insert(productImages).values(
+        uploadedUrls.map((url, index) => ({
+          product_id: created.id,
+          imagem_url: url,
+          sort_order: index,
+        }))
+      );
+    }
+
+    return json({
+      success: true,
+      product: created,
+    });
   } catch (e: any) {
     if (e instanceof Response) return e;
+
     console.error('Erro ao salvar produto:', e);
-    return json({ error: e?.message || 'Erro interno ao salvar produto.' }, 500);
+
+    return json(
+      {
+        error: e?.message || 'Erro interno ao salvar produto.',
+      },
+      500
+    );
   }
 };
