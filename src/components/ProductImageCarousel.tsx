@@ -4,12 +4,16 @@ type ProductImageCarouselProps = {
   images?: string[];
   fallbackImage?: string;
   alt: string;
+  clickable?: boolean;
+  onOpen?: () => void;
 };
 
 export default function ProductImageCarousel({
   images = [],
   fallbackImage = '/placeholder.jpg',
   alt,
+  clickable = false,
+  onOpen,
 }: ProductImageCarouselProps) {
   const allImages = useMemo(() => {
     const list = (images || []).filter(Boolean);
@@ -64,6 +68,11 @@ export default function ProductImageCarousel({
     setTouchStartX(null);
   };
 
+  const handleMainImageClick = () => {
+    if (!clickable || !onOpen || !hasImages) return;
+    onOpen();
+  };
+
   return (
     <div className="space-y-3">
       <div
@@ -72,17 +81,32 @@ export default function ProductImageCarousel({
         onTouchEnd={handleTouchEnd}
       >
         {hasImages ? (
-          <img
-            key={allImages[currentIndex]}
-            src={allImages[currentIndex]}
-            alt={`${alt} - imagem ${currentIndex + 1}`}
-            className="h-full w-full object-contain transition-all duration-300 ease-out select-none"
-            loading="lazy"
-            draggable={false}
-          />
+          <button
+            type="button"
+            onClick={handleMainImageClick}
+            className={`block h-full w-full ${
+              clickable ? 'cursor-zoom-in' : 'cursor-default'
+            }`}
+            aria-label={clickable ? `Ampliar ${alt}` : alt}
+          >
+            <img
+              key={allImages[currentIndex]}
+              src={allImages[currentIndex]}
+              alt={`${alt} - imagem ${currentIndex + 1}`}
+              className="h-full w-full select-none object-contain transition-all duration-300 ease-out"
+              loading="lazy"
+              draggable={false}
+            />
+          </button>
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm font-medium text-slate-400">
             Sem imagem
+          </div>
+        )}
+
+        {clickable && hasImages && (
+          <div className="pointer-events-none absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-black text-slate-700 shadow-md backdrop-blur">
+            Ampliar
           </div>
         )}
 
