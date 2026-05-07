@@ -34,10 +34,9 @@ export async function getCatalogProducts(limit?: number): Promise<CatalogProduct
     const query = db.select().from(schemaProducts).orderBy(desc(schemaProducts.created_at));
     const rows = typeof limit === 'number' ? await query.limit(limit) : await query;
 
-    if (!rows.length) {
-      return fallbackCatalog(limit);
-    }
-
+    // Em produção, a vitrine pública precisa refletir exatamente o banco.
+    // Produtos demonstrativos só devem aparecer se o banco estiver indisponível,
+    // não quando o banco está funcionando mas ainda não há produtos cadastrados.
     return rows.map((p) => ({
       id: p.id.toString(),
       name: p.nome,

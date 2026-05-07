@@ -6,7 +6,11 @@ import { categories } from '../../../data/categories';
 <AdminLayout>
   <span slot="header">Novo Produto</span>
   
-  <div class="max-w-3xl rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
+  <div class="max-w-4xl rounded-[2rem] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+    <div class="mb-6 rounded-3xl bg-blue-50 p-5">
+      <h2 class="text-xl font-black text-dantas-navy">Cadastrar produto na vitrine</h2>
+      <p class="mt-1 text-sm leading-6 text-slate-600">Preencha os dados e envie uma foto. O produto será salvo no PostgreSQL e a imagem no Garage S3.</p>
+    </div>
     <form id="produtoForm" class="space-y-6">
       <div class="grid gap-6 sm:grid-cols-2">
         <div>
@@ -43,7 +47,8 @@ import { categories } from '../../../data/categories';
         <input type="file" name="imagem" id="imagem" accept="image/*" class="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100" />
       </div>
 
-      <div id="error-msg" class="hidden rounded-xl bg-red-50 p-3 text-sm text-red-700">Erro ao salvar produto.</div>
+      <div id="error-msg" class="hidden rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">Erro ao salvar produto.</div>
+      <div id="success-msg" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">Produto salvo com sucesso.</div>
 
       <div class="flex justify-end gap-3 pt-4">
         <a href="/admin/produtos" class="inline-flex rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Cancelar</a>
@@ -57,6 +62,7 @@ import { categories } from '../../../data/categories';
   const form = document.getElementById('produtoForm') as HTMLFormElement | null;
   const btn = document.getElementById('submitBtn') as HTMLButtonElement | null;
   const errorMsg = document.getElementById('error-msg');
+  const successMsg = document.getElementById('success-msg');
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -65,16 +71,27 @@ import { categories } from '../../../data/categories';
     btn.textContent = 'Salvando...';
     btn.disabled = true;
     errorMsg?.classList.add('hidden');
+    successMsg?.classList.add('hidden');
 
     try {
-      const res = await fetch('/api/produtos', { method: 'POST', body: formData });
-      if (res.ok) window.location.href = '/admin/produtos';
-      else {
-        const data = await res.json().catch(() => ({}));
-        if (errorMsg) errorMsg.textContent = data.error || 'Erro ao salvar produto.';
-        errorMsg?.classList.remove('hidden');
+      const res = await fetch('/api/produtos', {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || `Erro ao salvar produto (${res.status}).`);
       }
-    } catch (_) {
+
+      if (successMsg) successMsg.textContent = 'Produto salvo com sucesso. Redirecionando para a lista...';
+      successMsg?.classList.remove('hidden');
+      form.reset();
+      window.location.href = '/admin/produtos';
+    } catch (err) {
+      if (errorMsg) errorMsg.textContent = err instanceof Error ? err.message : 'Erro ao salvar produto.';
       errorMsg?.classList.remove('hidden');
     } finally {
       btn.textContent = 'Salvar Produto';
