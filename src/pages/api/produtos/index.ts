@@ -38,6 +38,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     let marca = '';
     let categoria = '';
     let imagem_url = '';
+    let visible = true;
     let files: File[] = [];
 
     if (contentType.includes('application/json')) {
@@ -49,6 +50,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       marca = body.marca?.toString().trim() || '';
       categoria = body.categoria?.toString().trim() || '';
       imagem_url = body.imagem_url?.toString().trim() || '';
+      visible = body.visible !== false;
     } else {
       const formData = await request.formData();
 
@@ -58,6 +60,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       marca = formData.get('marca')?.toString().trim() || '';
       categoria = formData.get('categoria')?.toString().trim() || '';
       imagem_url = formData.get('imagem_url')?.toString().trim() || '';
+      visible = formData.has('visible');
 
       const multiFiles = formData
         .getAll('imagens')
@@ -102,6 +105,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         marca: marca || null,
         categoria: categoria || null,
         imagem_url,
+        visible,
         updated_at: new Date(),
       })
       .returning();
