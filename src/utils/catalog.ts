@@ -1,4 +1,4 @@
-import { asc, desc, inArray } from 'drizzle-orm';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { products as fallbackProducts } from '@/data/products';
 import { db } from '../db';
 import { productImages, products as schemaProducts } from '../db/schema';
@@ -36,6 +36,7 @@ export async function getCatalogProducts(limit?: number): Promise<CatalogProduct
     const query = db
       .select()
       .from(schemaProducts)
+      .where(eq(schemaProducts.visible, true))
       .orderBy(desc(schemaProducts.created_at));
 
     const rows = typeof limit === 'number' ? await query.limit(limit) : await query;
