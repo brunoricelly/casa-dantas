@@ -26,6 +26,7 @@ export const products = pgTable('products', {
   marca: varchar('marca', { length: 120 }),
   categoria: varchar('categoria', { length: 120 }),
   imagem_url: text('imagem_url'),
+  visible: boolean('visible').notNull().default(true),
   created_at: timestamp('created_at').defaultNow(),
   updated_at: timestamp('updated_at').defaultNow(),
 });
