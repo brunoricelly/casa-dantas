@@ -53,6 +53,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     const especificacoes = formData.get('especificacoes')?.toString().trim() || '';
     const marca = formData.get('marca')?.toString().trim() || '';
     const categoria = formData.get('categoria')?.toString().trim() || '';
+    const visible = formData.has('visible');
 
     const multiFiles = formData
       .getAll('imagens')
@@ -98,6 +99,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
         marca: marca || null,
         categoria: categoria || null,
         imagem_url,
+        visible,
         updated_at: new Date(),
       })
       .where(eq(products.id, id))
