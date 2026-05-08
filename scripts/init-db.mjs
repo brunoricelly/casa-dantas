@@ -20,6 +20,7 @@ const sql = postgres(DATABASE_URL, {
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+
   return `${salt}:${hash}`;
 }
 
@@ -50,6 +51,7 @@ try {
       marca VARCHAR(120),
       categoria VARCHAR(120),
       imagem_url TEXT,
+      visible BOOLEAN NOT NULL DEFAULT true,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )
@@ -71,7 +73,12 @@ try {
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS categorias TEXT[] DEFAULT ARRAY[]::text[]`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP`;
+
   await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS imagem_url TEXT`;
+  await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS visible BOOLEAN DEFAULT true`;
+  await sql`UPDATE products SET visible = true WHERE visible IS NULL`;
+  await sql`ALTER TABLE products ALTER COLUMN visible SET DEFAULT true`;
+  await sql`ALTER TABLE products ALTER COLUMN visible SET NOT NULL`;
 
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS users_email_unique_idx ON users (email)`;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS products_codigo_unique_idx ON products (codigo)`;
