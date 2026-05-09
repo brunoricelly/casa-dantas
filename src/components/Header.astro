@@ -1,31 +1,88 @@
 ---
 import { navigation, site } from '@/data/site';
+
 const path = Astro.url.pathname;
 ---
+
 <header class="sticky top-0 z-50 border-b border-white/50 bg-white/90 backdrop-blur-xl">
   <div class="container-page flex h-20 items-center justify-between gap-6">
     <a href="/" class="group flex items-center gap-3" aria-label="Casa Dantas - início">
-      <div class="grid h-12 w-12 place-items-center rounded-2xl bg-dantas-blue text-xl font-black text-white shadow-soft transition group-hover:scale-105">CD</div>
+      <img
+        src="/favicon.svg"
+        alt="Casa Dantas"
+        class="h-12 w-12 rounded-2xl object-contain shadow-soft transition group-hover:scale-105"
+      />
+
       <div class="leading-tight">
-        <div class="text-lg font-black uppercase tracking-tight text-dantas-navy">Casa Dantas</div>
-        <div class="text-[11px] font-bold uppercase tracking-[0.22em] text-dantas-red">Seus pés sempre na moda</div>
+        <div class="text-lg font-black uppercase tracking-tight text-dantas-navy">
+          Casa Dantas
+        </div>
+
+        <div class="text-[11px] font-bold uppercase tracking-[0.22em] text-dantas-red">
+          Seus pés sempre na moda
+        </div>
       </div>
     </a>
+
     <nav class="hidden items-center gap-1 lg:flex" aria-label="Navegação principal">
       {navigation.map((item) => (
-        <a href={item.href} class:list={["rounded-full px-4 py-2 text-sm font-bold transition", path === item.href ? 'bg-dantas-blue text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-dantas-blue']}>{item.label}</a>
+        <a
+          href={item.href}
+          class:list={[
+            'rounded-full px-4 py-2 text-sm font-bold transition',
+            path === item.href
+              ? 'bg-dantas-blue text-white'
+              : 'text-slate-700 hover:bg-blue-50 hover:text-dantas-blue',
+          ]}
+        >
+          {item.label}
+        </a>
       ))}
     </nav>
+
     <div class="hidden items-center gap-3 md:flex">
-      <a class="rounded-full px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-dantas-blue" href="/admin/login">Login</a>
-      <a class="btn-secondary" href="/catalogo">Ver catálogo</a>
-      <a class="btn-primary" href={site.whatsappLink} target="_blank" rel="noreferrer">WhatsApp</a>
+      <a
+        href="/admin/login"
+        class="rounded-full px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-dantas-blue"
+      >
+        Login
+      </a>
+
+      <a href="/catalogo" class="btn-secondary">
+        Ver catálogo
+      </a>
+
+      <a
+        href={site.whatsappLink}
+        target="_blank"
+        rel="noreferrer"
+        class="btn-primary"
+      >
+        WhatsApp
+      </a>
     </div>
+
     <details class="lg:hidden">
-      <summary class="cursor-pointer rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-dantas-blue">Menu</summary>
+      <summary class="cursor-pointer rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-dantas-blue">
+        Menu
+      </summary>
+
       <div class="absolute left-4 right-4 top-20 rounded-3xl border border-slate-200 bg-white p-4 shadow-soft">
-        {navigation.map((item) => <a class="block rounded-2xl px-4 py-3 font-bold text-slate-700 hover:bg-blue-50" href={item.href}>{item.label}</a>)}
-        <a class="block rounded-2xl px-4 py-3 font-bold text-slate-700 hover:bg-blue-50" href="/admin/login">Login</a>
+        {navigation.map((item) => (
+          <a
+            href={item.href}
+            class="block rounded-2xl px-4 py-3 font-bold text-slate-700 hover:bg-blue-50"
+          >
+            {item.label}
+          </a>
+        ))}
+
+        <a
+          href="/admin/login"
+          class="block rounded-2xl px-4 py-3 font-bold text-slate-700 hover:bg-blue-50"
+        >
+          Login
+        </a>
       </div>
     </details>
   </div>
