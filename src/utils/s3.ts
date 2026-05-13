@@ -14,22 +14,31 @@ function getExtension(originalName: string, mimetype: string) {
   return byMime || 'bin';
 }
 
-function createS3Client() {
-  const accessKeyId = getEnv('S3_ACCESS_KEY_ID');
-  const secretAccessKey = getEnv('S3_SECRET_ACCESS_KEY');
-
-  if (!accessKeyId || !secretAccessKey) {
-    throw new Error('Credenciais S3 não configuradas.');
+function requireEnv(key: Parameters<typeof getEnv>[0]) {
+  const value = getEnv(key);
+  if (!value) {
+    throw new Error(`${key} não configurado.`);
   }
+  return value;
+}
+
+function createS3Client() {
+  const accessKeyId = requireEnv('S3_ACCESS_KEY_ID');
+  const secretAccessKey = requireEnv('S3_SECRET_ACCESS_KEY');
 
   return new S3Client({
-    region: getEnv('S3_REGION', 'garage'),
-    endpoint: getEnv('S3_ENDPOINT', 'https://storage.chatwoot.space'),
+    region: getEnv('S3_REGION', 'auto'),
+    endpoint: requireEnv('S3_ENDPOINT'),
     credentials: {
       accessKeyId,
       secretAccessKey,
     },
     forcePathStyle: true,
+    // Cloudflare R2 is S3-compatible, but older/newer AWS SDK defaults can add
+    // checksum headers that are not required for this upload flow. Keeping them
+    // opt-in avoids compatibility regressions during deploys.
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
   });
 }
 
@@ -47,9 +56,7 @@ export async function uploadImage(buffer: Buffer, mimetype: string, originalName
     ContentType: mimetype || 'application/octet-stream',
   }));
 
-  const publicBaseUrl =
-    getEnv('S3_PUBLIC_URL') ||
-    'https://files.chatwoot.space';
+  const publicBaseUrl = requireEnv('S3_PUBLIC_URL');
 
   return `${cleanBaseUrl(publicBaseUrl)}/${fileName}`;
 }

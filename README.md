@@ -9,7 +9,8 @@ Site moderno da Casa Dantas, tradicional loja de calçados, bolsas, malas e aces
 - TypeScript
 - Tailwind CSS
 - SEO + sitemap
-- Docker/Nginx para deploy no Coolify
+- Docker/Coolify para deploy
+- PostgreSQL + storage S3 compatível (Cloudflare R2 em produção)
 
 ## Desenvolvimento
 
@@ -35,6 +36,6 @@ Produção planejada:
 ## Roadmap
 
 - Integração com PostgreSQL para leads/pedidos
-- Integração Garage S3 para imagens dos produtos
+- Integração Cloudflare R2/S3 compatível para imagens dos produtos
 - Checkout PIX/cartão via gateway brasileiro
 - Área do cliente e painel administrativo
