@@ -16,11 +16,12 @@ export type Product = {
 
 type Props = {
   products: Product[];
+  initialCategory?: string;
 };
 
-export default function ProductCatalog({ products }: Props) {
+export default function ProductCatalog({ products, initialCategory = 'todos' }: Props) {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('todos');
+  const [category, setCategory] = useState(initialCategory);
   const [cart, setCart] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
