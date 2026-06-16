@@ -233,6 +233,7 @@ export default function ProductCatalog({ products, initialCategory = 'todos' }: 
                 images={selectedProduct.images}
                 fallbackImage={selectedProduct.image}
                 alt={selectedProduct.name}
+                variant="modal"
               />
             </div>
 

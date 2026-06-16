@@ -6,7 +6,34 @@ type ProductImageCarouselProps = {
   alt: string;
   clickable?: boolean;
   onOpen?: () => void;
+  variant?: 'card' | 'modal';
 };
+
+const CARD_WIDTH = 640;
+const MODAL_WIDTH = 1200;
+const THUMB_WIDTH = 160;
+
+function isCatalogSource(src: string) {
+  try {
+    const url = new URL(src);
+
+    return url.protocol === 'https:' && url.hostname === 'files.chatwoot.space' && url.pathname.startsWith('/catalogo/');
+  } catch {
+    return false;
+  }
+}
+
+function optimizedImageUrl(src: string, width: number, quality: number) {
+  if (!isCatalogSource(src)) return src;
+
+  const params = new URLSearchParams({
+    src,
+    w: width.toString(),
+    q: quality.toString(),
+  });
+
+  return `/api/image?${params.toString()}`;
+}
 
 export default function ProductImageCarousel({
   images = [],
@@ -14,6 +41,7 @@ export default function ProductImageCarousel({
   alt,
   clickable = false,
   onOpen,
+  variant = 'card',
 }: ProductImageCarouselProps) {
   const allImages = useMemo(() => {
     const list = (images || []).filter(Boolean);
@@ -32,6 +60,8 @@ export default function ProductImageCarousel({
 
   const hasImages = allImages.length > 0;
   const hasMultiple = allImages.length > 1;
+  const mainWidth = variant === 'modal' ? MODAL_WIDTH : CARD_WIDTH;
+  const mainQuality = variant === 'modal' ? 78 : 72;
 
   const goTo = (index: number) => {
     setCurrentIndex(index);
@@ -91,10 +121,11 @@ export default function ProductImageCarousel({
           >
             <img
               key={allImages[currentIndex]}
-              src={allImages[currentIndex]}
+              src={optimizedImageUrl(allImages[currentIndex], mainWidth, mainQuality)}
               alt={`${alt} - imagem ${currentIndex + 1}`}
               className="h-full w-full select-none object-contain transition-all duration-300 ease-out"
               loading="lazy"
+              decoding="async"
               draggable={false}
             />
           </button>
@@ -162,10 +193,11 @@ export default function ProductImageCarousel({
               }`}
             >
               <img
-                src={image}
+                src={optimizedImageUrl(image, THUMB_WIDTH, 60)}
                 alt={`${alt} miniatura ${index + 1}`}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                decoding="async"
               />
             </button>
           ))}
