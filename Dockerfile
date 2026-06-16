@@ -5,17 +5,15 @@ WORKDIR /app
 ENV CI=true
 
 FROM base AS deps
-# Keep devDependencies available during Astro build, even if Coolify exposes
-# NODE_ENV/NPM_CONFIG_PRODUCTION as build-time variables.
-ENV NODE_ENV=development \
-    NPM_CONFIG_PRODUCTION=false
+# Install devDependencies for Astro/TypeScript without forcing NODE_ENV=development,
+# because the SSR bundle must be built in production mode for the production runtime.
+ENV NPM_CONFIG_PRODUCTION=false
 COPY package*.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --include=dev --no-audit --no-fund
 
 FROM base AS build
-ENV NODE_ENV=development \
-    NPM_CONFIG_PRODUCTION=false
+ENV NPM_CONFIG_PRODUCTION=false
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
