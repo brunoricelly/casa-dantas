@@ -1,9 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProductCatalog from '@/components/ProductCatalog';
-import { getCatalogProducts } from '@/utils/catalog';
 
-const mappedProducts = await getCatalogProducts();
 const initialCategory = Astro.url.searchParams.get('categoria') || 'todos';
 ---
 <BaseLayout title="Vitrine | Casa Dantas Quixadá" description="Vitrine online Casa Dantas com calçados femininos, masculinos, infantis, bolsas, malas e acessórios.">
@@ -16,7 +14,7 @@ const initialCategory = Astro.url.searchParams.get('categoria') || 'todos';
   </section>
   <section class="py-14">
     <div class="container-page">
-      <ProductCatalog client:load products={mappedProducts} initialCategory={initialCategory} />
+      <ProductCatalog client:load initialCategory={initialCategory} />
     </div>
   </section>
 </BaseLayout>

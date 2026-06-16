@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Search, ShoppingBag, SlidersHorizontal, X } from 'lucide-react';
 import { categories } from '@/data/categories';
 import ProductImageCarousel from './ProductImageCarousel';
+
 const WHATSAPP_NUMBER = '5588997085002';
+const PAGE_SIZE = 24;
+
 export type Product = {
   id: string;
   name: string;
@@ -14,28 +17,133 @@ export type Product = {
   specs: string;
 };
 
-type Props = {
+type CatalogResponse = {
   products: Product[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
+};
+
+type Props = {
+  products?: Product[];
   initialCategory?: string;
 };
 
-export default function ProductCatalog({ products, initialCategory = 'todos' }: Props) {
+function buildCatalogUrl({
+  page,
+  query,
+  category,
+}: {
+  page: number;
+  query: string;
+  category: string;
+}) {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: PAGE_SIZE.toString(),
+    q: query.trim(),
+    category,
+  });
+
+  return `/api/catalogo?${params.toString()}`;
+}
+
+export default function ProductCatalog({ products: initialProducts = [], initialCategory = 'todos' }: Props) {
+  const apiMode = initialProducts.length === 0;
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState(initialCategory);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [page, setPage] = useState(apiMode ? 0 : 1);
+  const [total, setTotal] = useState(initialProducts.length);
+  const [hasMore, setHasMore] = useState(apiMode);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState('');
   const [cart, setCart] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const filtered = useMemo(() => {
-    const normalizedQuery = query.toLowerCase().trim();
+  const visibleProducts = useMemo(() => {
+    if (apiMode) return products;
+
+    const normalizedQuery = query.trim().toLowerCase();
 
     return products.filter((product) => {
-      const text = `${product.name} ${product.brand} ${product.specs} ${product.sku}`.toLowerCase();
-      const matchesSearch = text.includes(normalizedQuery);
+      const matchesQuery =
+        !normalizedQuery ||
+        product.name.toLowerCase().includes(normalizedQuery) ||
+        product.brand.toLowerCase().includes(normalizedQuery) ||
+        product.sku.toLowerCase().includes(normalizedQuery) ||
+        product.specs.toLowerCase().includes(normalizedQuery);
       const matchesCategory = category === 'todos' || product.category === category;
 
-      return matchesSearch && matchesCategory;
+      return matchesQuery && matchesCategory;
     });
-  }, [products, query, category]);
+  }, [apiMode, category, products, query]);
+
+  const loadProducts = async ({
+    nextPage,
+    append,
+    signal,
+  }: {
+    nextPage: number;
+    append: boolean;
+    signal?: AbortSignal;
+  }) => {
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+
+    setError('');
+
+    try {
+      const response = await fetch(buildCatalogUrl({ page: nextPage, query, category }), {
+        signal,
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Não foi possível carregar o catálogo agora.');
+      }
+
+      const data = (await response.json()) as CatalogResponse;
+
+      setProducts((current) => (append ? [...current, ...data.products] : data.products));
+      setPage(data.page);
+      setTotal(data.total);
+      setHasMore(data.hasMore);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+
+      console.error('Erro ao carregar catálogo:', err);
+      setError('Não foi possível carregar os produtos. Tente novamente.');
+    } finally {
+      if (append) {
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!apiMode) return;
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      loadProducts({ nextPage: 1, append: false, signal: controller.signal });
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [query, category]);
 
   const addToCart = (product: Product) => {
     setCart((items) => [...items, product]);
@@ -153,58 +261,94 @@ export default function ProductCatalog({ products, initialCategory = 'todos' }: 
         </aside>
 
         <section>
-          <div className="mb-5 flex items-center justify-between gap-4">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
             <p className="font-bold text-slate-600">
-              {filtered.length} produto(s) na vitrine
+              {loading ? 'Carregando vitrine...' : `${total} produto(s) na vitrine`}
             </p>
-          </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((product) => (
-              <article
-                key={product.id}
-                className="group rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-soft"
-              >
-                <ProductImageCarousel
-                  images={product.images}
-                  fallbackImage={product.image}
-                  alt={product.name}
-                  clickable
-                  onOpen={() => setSelectedProduct(product)}
-                />
-
-                <div className="p-2 pt-5">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-dantas-red">
-                    Ref: {product.sku}
-                  </p>
-
-                  <h3 className="mt-2 text-xl font-black text-dantas-navy">
-                    {product.name}
-                  </h3>
-
-                  <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600 line-clamp-3">
-                    {product.specs}
-                  </p>
-
-                  <div className="mt-5 flex items-center justify-end">
-                    <button
-                      type="button"
-                      onClick={() => addToCart(product)}
-                      className="rounded-full bg-dantas-blue px-4 py-3 text-sm font-black text-white transition hover:bg-dantas-navy"
-                    >
-                      Adicionar à lista
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-
-            {filtered.length === 0 && (
-              <p className="py-10 text-slate-500">
-                Nenhum produto encontrado com esses filtros.
+            {products.length > 0 && (
+              <p className="text-sm font-semibold text-slate-500">
+                Exibindo {products.length} de {total}
               </p>
             )}
           </div>
+
+          {error && (
+            <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+              {error}
+            </div>
+          )}
+
+          {loading && products.length === 0 ? (
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-96 animate-pulse rounded-[2rem] border border-slate-200 bg-slate-100"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {visibleProducts.map((product) => (
+                <article
+                  key={product.id}
+                  className="group rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-soft"
+                >
+                  <ProductImageCarousel
+                    images={product.images}
+                    fallbackImage={product.image}
+                    alt={product.name}
+                    clickable
+                    onOpen={() => setSelectedProduct(product)}
+                  />
+
+                  <div className="p-2 pt-5">
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-dantas-red">
+                      Ref: {product.sku}
+                    </p>
+
+                    <h3 className="mt-2 text-xl font-black text-dantas-navy">
+                      {product.name}
+                    </h3>
+
+                    <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600 line-clamp-3">
+                      {product.specs}
+                    </p>
+
+                    <div className="mt-5 flex items-center justify-end">
+                      <button
+                        type="button"
+                        onClick={() => addToCart(product)}
+                        className="rounded-full bg-dantas-blue px-4 py-3 text-sm font-black text-white transition hover:bg-dantas-navy"
+                      >
+                        Adicionar à lista
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+
+              {!loading && visibleProducts.length === 0 && (
+                <p className="py-10 text-slate-500">
+                  Nenhum produto encontrado com esses filtros.
+                </p>
+              )}
+            </div>
+          )}
+
+          {hasMore && products.length > 0 && (
+            <div className="mt-10 flex justify-center">
+              <button
+                type="button"
+                onClick={() => loadProducts({ nextPage: page + 1, append: true })}
+                disabled={loadingMore}
+                className="rounded-full bg-dantas-navy px-6 py-3 text-sm font-black text-white transition hover:bg-dantas-blue disabled:cursor-wait disabled:opacity-60"
+              >
+                {loadingMore ? 'Carregando...' : 'Carregar mais produtos'}
+              </button>
+            </div>
+          )}
         </section>
       </div>
 
@@ -260,15 +404,15 @@ export default function ProductCatalog({ products, initialCategory = 'todos' }: 
                 )}
               </div>
 
-              <p className="mt-6 whitespace-pre-line text-base leading-8 text-slate-700">
+              <p className="mt-5 whitespace-pre-line text-base leading-8 text-slate-600">
                 {selectedProduct.specs}
               </p>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
                   onClick={() => addToCart(selectedProduct)}
-                  className="rounded-full bg-dantas-blue px-6 py-4 text-sm font-black text-white transition hover:bg-dantas-navy"
+                  className="rounded-full bg-dantas-blue px-5 py-3 text-sm font-black text-white transition hover:bg-dantas-navy"
                 >
                   Adicionar à lista
                 </button>
@@ -277,19 +421,11 @@ export default function ProductCatalog({ products, initialCategory = 'todos' }: 
                   href={`https://wa.me/${WHATSAPP_NUMBER}?text=${selectedWhatsAppText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-emerald-500 px-6 py-4 text-center text-sm font-black text-white transition hover:bg-emerald-600"
+                  className="rounded-full bg-emerald-500 px-5 py-3 text-center text-sm font-black text-white transition hover:bg-emerald-600"
                 >
-                  Chamar no WhatsApp
+                  Consultar no WhatsApp
                 </a>
               </div>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                className="mt-4 w-full rounded-full border border-slate-200 px-6 py-4 text-sm font-black text-slate-700 transition hover:bg-slate-50"
-              >
-                Voltar para vitrine
-              </button>
             </div>
           </div>
         </div>
